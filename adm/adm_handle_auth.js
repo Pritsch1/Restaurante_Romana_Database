@@ -1,41 +1,45 @@
-/* ---Dependencies--- */
-const validator = require('validator');
-const zxcvbn = require('zxcvbn');
-
-function validate_signin(front_data) {
-    if (
-        !front_data ||
-        typeof front_data !== 'object' ||
-        !front_data.hasOwnProperty('email') ||
-        !front_data.hasOwnProperty('password') ||
-        typeof front_data.email !== 'string' ||
-        typeof front_data.password !== 'string' ||
-        validator.isEmail(front_data.email) === false
-    ) { return false; }
-    return true;
+/* ---My Files--- */
+const { query_database } = require('../database');
+const { validate_signin, validate_signup } = require('./adm_validate');
+function handle_adm_signin(data) {
+    return new Promise((resolve, reject) => {
+        //console.log("handle: ", data);
+        if (validate_signin(data) === true) {
+            const query = 'SELECT * FROM adm_login WHERE email = ? AND password = ?';
+            query_database(query, [data.email, data.password])
+                .then((a) => {
+                    resolve(a[0]);
+                });
+        } else {
+            reject("Missing Signin Data @ RRDAHA");
+        }
+    });
 }
+
+function handle_adm_signup(data) {
+    /*
+    const result = zxcvbn(data.password);
+    const score = result.score;
+    score < 3
+    */
+
+    return new Promise((resolve, reject) => {
+        //console.log("handle: ", data);
+        if (validate_signup(data) === true) {
+            const query = 'INSERT INTO adm_login (email, password) VALUES (?, ?)';
+            query_database(query, [data.email, data.password])
+                .then((a) => {
+                    resolve(a[0]);
+                });
+        } else {
+            reject("Missing Signin Data @ RRDAHA");
+        }
+    });
+}
+
+module.exports = { handle_adm_signin, handle_adm_signup };
 
 /* Need to add an email verification and phone verification */
-
-function validate_signup(front_data) {
-    const result = zxcvbn(front_data.password);
-    const score = result.score;
-    if (
-        !front_data ||
-        typeof front_data !== 'object' ||
-        !front_data.hasOwnProperty('email') ||
-        !front_data.hasOwnProperty('password') ||
-        !front_data.hasOwnProperty('phone') ||
-        typeof front_data.email !== 'string' ||
-        typeof front_data.password !== 'string' ||
-        typeof front_data.phone !== 'string' ||
-        validator.isEmail(front_data.email) === false ||
-        score < 3
-    ) { return false; }
-    return true;
-}
-
-module.exports = { validate_signin, validate_signup };
 
 /*const ip = req.body.location.ipString;
 if (ip) {
