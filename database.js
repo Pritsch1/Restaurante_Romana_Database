@@ -15,21 +15,15 @@ function query_database(query, data) {
     return new Promise((resolve, reject) => {
         pool.getConnection((err, connection) => {
             if (err) {
-                console.error('Error getting connection:', err);
                 reject(err);
                 return;
             }
-
             connection.query(query, data, (error, results) => {
-                connection.release(); // Release the connection back to the pool
-
+                connection.release();
                 if (error) {
-                    console.error('Error executing query:', error);
                     reject(error);
                     return;
                 }
-
-                // Results will contain the rows that match the email and password
                 resolve(results);
             });
         });

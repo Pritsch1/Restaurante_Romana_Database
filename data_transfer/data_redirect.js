@@ -1,5 +1,5 @@
 /* ---My Files--- */
-const { handle_adm_signin, handle_adm_signup } = require('.././adm/adm_handle_auth');
+const { handle_adm_signin, handle_adm_signup, adm_auth } = require('.././adm/adm_handle_auth');
 
 function data_redirect(unpacked_data) {
     switch (unpacked_data.type) {
@@ -7,6 +7,8 @@ function data_redirect(unpacked_data) {
             return handle_adm_signin(unpacked_data.decrypted_data);
         case 'adm_signup':
             return handle_adm_signup(unpacked_data.decrypted_data);
+        case 'auth':
+            return adm_auth(unpacked_data.decrypted_data);
         default:
             return Promise.reject("Unable To Redirect Data @ RRDDR");
     }

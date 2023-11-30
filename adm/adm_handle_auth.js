@@ -1,14 +1,33 @@
 /* ---My Files--- */
 const { query_database } = require('../database');
+const { generate_adm_jwt_token, verify_adm_jwt_token } = require('./adm_generate_token');
 const { validate_signin, validate_signup } = require('./adm_validate');
+
+function adm_auth(token) {
+    return new Promise((resolve, reject) => {
+        const status = verify_adm_jwt_token(token);
+        console.log(status);
+        if (status !== null) { resolve("GUUUD!"); }
+        reject("AIIII");
+    });
+}
+
 function handle_adm_signin(data) {
     return new Promise((resolve, reject) => {
         //console.log("handle: ", data);
         if (validate_signin(data) === true) {
             const query = 'SELECT * FROM adm_login WHERE email = ? AND password = ?';
             query_database(query, [data.email, data.password])
-                .then((a) => {
-                    resolve(a[0]);
+                .then((response) => {
+                    if (response[0] !== undefined) {
+                        const token = generate_adm_jwt_token({ email: data.email });
+                        resolve(token);
+                    }
+                    else { reject("Data not found"); }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject("Unable to query");
                 });
         } else {
             reject("Missing Signin Data @ RRDAHA");
@@ -37,7 +56,7 @@ function handle_adm_signup(data) {
     });
 }
 
-module.exports = { handle_adm_signin, handle_adm_signup };
+module.exports = { handle_adm_signin, handle_adm_signup, adm_auth };
 
 /* Need to add an email verification and phone verification */
 

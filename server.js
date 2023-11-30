@@ -7,7 +7,7 @@ const NET_PORT = process.env.RRNET_PORT;
 const { server } = require('./data_transfer/data_transfer_2back');
 /* --- net --- */
 server.listen(NET_PORT,  () => {
-    console.log(`net Running! Port: ${NET_PORT}`);
+    console.log(`net Server Running!`);
 });
 
 /*
